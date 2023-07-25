@@ -1,23 +1,22 @@
 #!/usr/bin/node
+
 const request = require('request');
-const url = process.argv[2];
-const myDict = {};
 
-request(url, function (err, data, body) {
-  if (err) {
-    console.log(err);
-  } else {
-    const response = JSON.parse(body);
-
-    for (let i = 0; i < response.length; i++) {
-      if (response[i].completed === true) {
-        if (myDict[response[i].userId] === undefined) {
-          myDict[response[i].userId] = 1;
-        } else {
-          myDict[response[i].userId] += 1;
-        }
+request(process.argv[2], function (error, response, body) {
+  if (error) {
+    console.error(error);
+  }
+  const dict = JSON.parse(body).reduce((acc, elem) => {
+    if (!acc[elem.userId]) {
+      if (elem.completed) {
+        acc[elem.userId] = 1;
+      }
+    } else {
+      if (elem.completed) {
+        acc[elem.userId] += 1;
       }
     }
-  }
-  console.log(myDict);
+    return acc;
+  }, {});
+  console.log(dict);
 });
